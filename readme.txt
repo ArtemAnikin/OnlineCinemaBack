@@ -16,4 +16,8 @@ nest g mo user
 nest g s user
 nest g co user
 
-video 1-3
+yarn add @nestjs/jwt @nestjs/passport class-validator class-transformer passport passport-jwt bcryptjs
+
+yarn add -D @types/bcryptjs @types/passport-jwt
+
+video 4
