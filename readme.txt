@@ -40,4 +40,10 @@ import ServeStaticModule from server-static,
 path from app-root-path,
 forRoot({rootPath: ${path}}),
 
+//actor
+nest g mo actor
+nest g s actor
+nest g co actor
+
+
 video 9
