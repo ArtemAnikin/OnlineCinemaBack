@@ -1,10 +1,12 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	Param,
 	Put,
+	Query,
 	UsePipes,
 	ValidationPipe,
 } from '@nestjs/common'
@@ -32,6 +34,25 @@ export class UserController {
 		return this.userService.updateProfile(_id, dto)
 	}
 
+	@Get('count')
+	@Auth('admin')
+	async getCount() {
+		return this.userService.getCount()
+	}
+
+	@Get('get-all')
+	@Auth('admin')
+	async getUsers(@Query('searchTerm') searchTerm?: string) {
+		return this.userService.getAll(searchTerm)
+	}
+
+	@UsePipes(new ValidationPipe())
+	@Get(':id')
+	@Auth('admin')
+	async getUser(@Param('id', IdValidationPipes) id: string) {
+		return this.userService.byId(id)
+	}
+
 	@UsePipes(new ValidationPipe())
 	@Put(':id')
 	@HttpCode(200)
@@ -41,5 +62,11 @@ export class UserController {
 		@Body() dto: UpdateUserDto
 	) {
 		return this.userService.updateProfile(id, dto)
+	}
+
+	@Delete(':id')
+	@Auth('admin')
+	async deleteUser(@Param('id', IdValidationPipes) id: string) {
+		return this.userService.delete(id)
 	}
 }

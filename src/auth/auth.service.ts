@@ -14,7 +14,7 @@ import { RefreshTokenDto } from './dto/refreshToken.dto'
 @Injectable()
 export class AuthService {
 	constructor(
-		@InjectModel(UserModel) private readonly UserModel: ModelType<UserModel>,
+		@InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
 		private readonly JwtService: JwtService
 	) {}
 
@@ -39,7 +39,7 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid token or expired!')
 		}
 
-		const user = await this.UserModel.findById(result._id)
+		const user = await this.userModel.findById(result._id)
 
 		const tokens = await this.issueTokenPair(String(user._id))
 
@@ -51,7 +51,7 @@ export class AuthService {
 
 	async register(dto: AuthDto) {
 		const { email, password } = dto
-		const isUserExist = await this.UserModel.findOne({ email })
+		const isUserExist = await this.userModel.findOne({ email })
 
 		if (isUserExist) {
 			throw new BadRequestException('This email already used')
@@ -59,15 +59,17 @@ export class AuthService {
 
 		const salt = await genSalt(10)
 
-		const newUser = new this.UserModel({
+		const newUser = new this.userModel({
 			email,
 			password: await hash(password, salt),
 		})
 
-		const tokens = await this.issueTokenPair(String(newUser._id))
+		const user = await newUser.save()
+
+		const tokens = await this.issueTokenPair(String(user._id))
 
 		return {
-			user: this.returnUserFields(newUser),
+			user: this.returnUserFields(user),
 			...tokens,
 		}
 	}
@@ -91,7 +93,7 @@ export class AuthService {
 
 	async validateUser(dto: AuthDto) {
 		const { email, password } = dto
-		const user = await this.UserModel.findOne({ email })
+		const user = await this.userModel.findOne({ email })
 
 		if (!user) {
 			throw new UnauthorizedException('User not found')

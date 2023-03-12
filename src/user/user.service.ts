@@ -43,4 +43,30 @@ export class UserService {
 		await user.save()
 		return
 	}
+
+	// only for admin
+
+	async getCount() {
+		return this.userModel.find().count().exec()
+	}
+
+	async getAll(searchTerm?: string) {
+		let options = {}
+
+		if (searchTerm) {
+			options = {
+				$or: [{ email: RegExp(searchTerm, 'i') }],
+			}
+		}
+
+		return this.userModel
+			.find(options)
+			.select('-password -updatedAt -__v')
+			.sort({ createdAt: 'desc' })
+			.exec()
+	}
+
+	async delete(_id: string) {
+		return this.userModel.findByIdAndDelete(_id).exec()
+	}
 }
