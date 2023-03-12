@@ -46,7 +46,6 @@ export class UserController {
 		return this.userService.getAll(searchTerm)
 	}
 
-	@UsePipes(new ValidationPipe())
 	@Get(':id')
 	@Auth('admin')
 	async getUser(@Param('id', IdValidationPipes) id: string) {
