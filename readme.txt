@@ -45,5 +45,8 @@ nest g mo actor
 nest g s actor
 nest g co actor
 
-
+//movie
+nest g mo movie
+nest g s movie
+nest g co movie
 video 9
