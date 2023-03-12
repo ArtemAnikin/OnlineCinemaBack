@@ -27,4 +27,17 @@ nest g mo genre
 nest g s genre
 nest g co genre
 
-video 4
+//file
+nest g mo file
+nest g s file
+nest g co file
+
+yarn add @nestjs/serve-static app-root-path fs-extra
+
+yarn add -D @types/app-root-path @types/fs-extra @types/multer
+
+import ServeStaticModule from server-static,
+path from app-root-path,
+forRoot({rootPath: ${path}}),
+
+video 9
