@@ -8,29 +8,45 @@ import { ModelType } from '@typegoose/typegoose/lib/types'
 import { UserModel } from 'src/user/user.model'
 import { AuthDto } from './dto/auth.dto'
 import { compare, genSalt, hash } from 'bcryptjs'
+import { JwtService } from '@nestjs/jwt'
+import { RefreshTokenDto } from './dto/refreshToken.dto'
 
 @Injectable()
 export class AuthService {
 	constructor(
-		@InjectModel(UserModel) private readonly UserModel: ModelType<UserModel>
+		@InjectModel(UserModel) private readonly UserModel: ModelType<UserModel>,
+		private readonly JwtService: JwtService
 	) {}
 
 	async login(dto: AuthDto) {
-		const { email, password } = dto
+		const user = await this.validateUser(dto)
 
-		const user = await this.UserModel.findOne({ email })
+		const tokens = await this.issueTokenPair(String(user._id))
 
-		if (!user) {
-			throw new UnauthorizedException('User not found')
+		return {
+			user: this.returnUserFields(user),
+			...tokens,
+		}
+	}
+
+	async getNewTokens({ refreshToken }: RefreshTokenDto) {
+		if (!refreshToken) {
+			throw new UnauthorizedException('Please sign in!')
 		}
 
-		const isValidPassword = await compare(password, user.password)
-
-		if (!isValidPassword) {
-			throw new UnauthorizedException('Invalid password')
+		const result = await this.JwtService.verifyAsync(refreshToken)
+		if (!result) {
+			throw new UnauthorizedException('Invalid token or expired!')
 		}
 
-		return user
+		const user = await this.UserModel.findById(result._id)
+
+		const tokens = await this.issueTokenPair(String(user._id))
+
+		return {
+			user: this.returnUserFields(user),
+			...tokens,
+		}
 	}
 
 	async register(dto: AuthDto) {
@@ -48,6 +64,54 @@ export class AuthService {
 			password: await hash(password, salt),
 		})
 
-		return newUser.save()
+		const tokens = await this.issueTokenPair(String(newUser._id))
+
+		return {
+			user: this.returnUserFields(newUser),
+			...tokens,
+		}
+	}
+
+	async issueTokenPair(userId: string) {
+		const data = { _id: userId }
+
+		const refreshToken = await this.JwtService.signAsync(data, {
+			expiresIn: '15d',
+		})
+
+		const accessToken = await this.JwtService.signAsync(data, {
+			expiresIn: '1h',
+		})
+
+		return {
+			refreshToken,
+			accessToken,
+		}
+	}
+
+	async validateUser(dto: AuthDto) {
+		const { email, password } = dto
+		const user = await this.UserModel.findOne({ email })
+
+		if (!user) {
+			throw new UnauthorizedException('User not found')
+		}
+
+		const isValidPassword = await compare(password, user.password)
+
+		if (!isValidPassword) {
+			throw new UnauthorizedException('Invalid password')
+		}
+
+		return user
+	}
+
+	returnUserFields(user: UserModel) {
+		const { _id, email, isAdmin } = user
+		return {
+			_id,
+			email,
+			isAdmin,
+		}
 	}
 }
