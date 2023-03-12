@@ -4,6 +4,7 @@ import { UserModel } from './user.model'
 import { InjectModel } from 'nestjs-typegoose'
 import { UpdateUserDto } from './dto/updateUser.dto'
 import { genSalt, hash } from 'bcryptjs'
+import { Types } from 'mongoose'
 
 @Injectable()
 export class UserService {
@@ -42,6 +43,24 @@ export class UserService {
 
 		await user.save()
 		return
+	}
+
+	async toggleFavorite(movieId: Types.ObjectId, user: UserModel) {
+		const { _id, favorites } = user
+
+		await this.userModel.findByIdAndUpdate(_id, {
+			favorites: favorites.includes(movieId)
+				? favorites.filter((id) => String(id) !== String(movieId))
+				: [...favorites, movieId],
+		})
+	}
+
+	async getFavoritesMovies(_id: Types.ObjectId) {
+		return this.userModel
+			.findById(_id, 'favorites')
+			.populate({ path: 'favorites', populate: { path: 'genres' } })
+			.exec()
+			.then((data) => data.favorites)
 	}
 
 	// only for admin
