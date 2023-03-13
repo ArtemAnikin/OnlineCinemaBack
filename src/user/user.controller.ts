@@ -29,7 +29,7 @@ export class UserController {
 	}
 
 	@UsePipes(new ValidationPipe())
-	@Put('profile/favorites')
+	@Put('profile')
 	@HttpCode(200)
 	@Auth()
 	async updateProfile(@User('_id') _id: string, @Body() dto: UpdateUserDto) {

@@ -60,7 +60,6 @@ export class UserService {
 			.findById(_id, 'favorites')
 			.populate({ path: 'favorites', populate: { path: 'genres' } })
 			.exec()
-			.then((data) => data.favorites)
 	}
 
 	// only for admin
