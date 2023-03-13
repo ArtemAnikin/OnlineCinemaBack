@@ -49,4 +49,12 @@ nest g co actor
 nest g mo movie
 nest g s movie
 nest g co movie
+
+//rating
+nest g mo rating
+nest g s rating
+nest g co rating
+
+yarn add class-validator-mongo-object-id
+
 video 9
