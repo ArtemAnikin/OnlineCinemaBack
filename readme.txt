@@ -57,4 +57,9 @@ nest g co rating
 
 yarn add class-validator-mongo-object-id
 
-video 9
+//telegram notifications
+nest g mo telegram
+nest g s telegram
+nest g co telegram
+
+yarn add telegraf

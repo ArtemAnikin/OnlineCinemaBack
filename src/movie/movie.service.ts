@@ -4,11 +4,14 @@ import { ModelType } from '@typegoose/typegoose/lib/types'
 import { MovieModel } from './movie.model'
 import { UpdateMovieDto } from './dto/updateMovie.dto'
 import { Types } from 'mongoose'
+import { TelegramService } from '../telegram/telegram.service'
+import * as process from 'process'
 
 @Injectable()
 export class MovieService {
 	constructor(
-		@InjectModel(MovieModel) private readonly movieModel: ModelType<MovieModel>
+		@InjectModel(MovieModel) private readonly movieModel: ModelType<MovieModel>,
+		private readonly telegramService: TelegramService
 	) {}
 
 	async getAll(searchTerm?: string) {
@@ -127,7 +130,11 @@ export class MovieService {
 	}
 
 	async update(_id: string, dto: UpdateMovieDto) {
-		// TODO telegram notification
+		if (!dto.isSendTelegram) {
+			await this.sendNotification(dto)
+			dto.isSendTelegram = true
+		}
+
 		const updateMovie = await this.movieModel
 			.findByIdAndUpdate(_id, dto, {
 				new: true,
@@ -149,5 +156,19 @@ export class MovieService {
 		}
 
 		return deleteMovie
+	}
+
+	async sendNotification(dto: UpdateMovieDto) {
+		if (process.env.NODE_ENV !== 'development') {
+			await this.telegramService.sendPhoto(dto.poster)
+		}
+
+		const message = `<b>${dto.title}</b>`
+
+		await this.telegramService.sendMessage(message, {
+			reply_markup: {
+				inline_keyboard: [[{ url: '', text: 'Go to watch' }]],
+			},
+		})
 	}
 }
