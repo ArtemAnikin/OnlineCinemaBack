@@ -130,10 +130,10 @@ export class MovieService {
 	}
 
 	async update(_id: string, dto: UpdateMovieDto) {
-		if (!dto.isSendTelegram) {
-			await this.sendNotification(dto)
-			dto.isSendTelegram = true
-		}
+		// if (!dto.isSendTelegram) {
+		// 	await this.sendNotification(dto)
+		// 	dto.isSendTelegram = true
+		// }
 
 		const updateMovie = await this.movieModel
 			.findByIdAndUpdate(_id, dto, {
