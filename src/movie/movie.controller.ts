@@ -39,7 +39,7 @@ export class MovieController {
 		return this.movieService.byGenres(genreIds)
 	}
 
-	@Get('get-all')
+	@Get('')
 	async getAll(@Query('searchTerm') searchTerm?: string) {
 		return this.movieService.getAll(searchTerm)
 	}

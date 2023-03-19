@@ -30,7 +30,7 @@ export class GenreController {
 		return this.genreService.getCollections()
 	}
 
-	@Get('/get-all')
+	@Get('')
 	async getAll(@Query('searchTerm') searchTerm?: string) {
 		return this.genreService.getAll(searchTerm)
 	}

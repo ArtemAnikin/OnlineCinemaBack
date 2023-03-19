@@ -17,7 +17,7 @@ export class FileService {
 				await writeFile(`${uploadFolder}/${file.originalname}`, file.buffer)
 
 				return {
-					url: `uploads/${folder}/${file.originalname}`,
+					url: `/uploads/${folder}/${file.originalname}`,
 					name: file.originalname,
 				}
 			})
